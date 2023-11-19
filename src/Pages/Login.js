@@ -1,63 +1,186 @@
-import React from "react";
+import React, { useState } from "react";
+import {
+  useAuthState,
+  useSignInWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
 import auth from "../firebase.init";
-import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = () => {
-  const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm();
+  const navigate = useNavigate();
+
+  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
+  const [loginError, setLoginError] = useState(null);
+
+  const [userMail] = useAuthState(auth);
+
   const onSubmit = (data) => {
-    console.log(data);
+    signInWithEmailAndPassword(data.email, data.password)
+      .then(() => {
+        navigate("/dashboard");
+      })
+      .catch((error) => {
+        setLoginError("Incorrect email or password. Please try again.");
+      });
   };
 
+  if (userMail) {
+    navigate("/dashboard");
+    return null;
+  }
+
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="text-center">Login Now</h2>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-control w-full max-w-xs">
-              <label className="label">
-                <span className="label-text">Your Email</span>
-                
-              </label>
-              <input {...register("email", { required: true })}
-              aria-invalid={errors.email ? "true" : "false"}
-                type="email"
-                placeholder="Enter your email"
-                className="input input-bordered w-full max-w-xs"
-              />
-              <label className="label">
-                <span className="label-text">Password</span>
-                
-              </label>
-              <input {...register("password", { required: true })}
-              aria-invalid={errors.password ? "true" : "false"}
-                type="password"
-                placeholder="Enter your password"
-                className="input input-bordered w-full max-w-xs"
-              />
-              
+    <>
+      <div
+        className="main-content payment-setting"
+        data-aos="fade-up"
+        data-aos-duration={2000}
+      >
+        <div className="page-content">
+          <section className="bg-auth">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-12">
+                  <div
+                    className="card auth-box mb-15"
+                    style={{ background: "#0c0f2d" }}
+                  >
+                    <div className="row g-0">
+                      <div className="col-lg-6 text-center">
+                        <div className="card-body p-4">
+                          <div className="mt-5">
+                            <img
+                              src="https://themesdesign.in/jobcy/layout/assets/images/auth/sign-in.png"
+                              alt=""
+                              className="img-fluid"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-lg-6">
+                        <div className="auth-content card-body p-5 h-100 text-white">
+                          <div className="w-100">
+                            <div className="text-center mb-4">
+                              <h4>Welcome Back !</h4>
+                              <p className="text-white-70">
+                                Sign in to continue.
+                              </p>
+                            </div>
+                            <form
+                              onSubmit={handleSubmit(onSubmit)}
+                              className="auth-form"
+                            >
+                              <div className="mb-3">
+                                <label
+                                  htmlFor="usernameInput"
+                                  className="form-label"
+                                >
+                                  Email
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  id="usernameInput"
+                                  placeholder="Enter your Email"
+                                  {...register("email", {
+                                    required: {
+                                      value: true,
+                                      message: "Email is Required",
+                                    },
+                                    pattern: {
+                                      value: /[A-Za-z]{3}/,
+                                      message: "Provide a Valid Email",
+                                    },
+                                  })}
+                                />
+                                <label class="label">
+                                  {errors.email?.type === "required" &&
+                                    "Email is Required"}
+                                </label>
+                              </div>
+                              <div className="mb-3">
+                                <label
+                                  htmlFor="passwordInput"
+                                  className="form-label"
+                                >
+                                  Password
+                                </label>
+                                <input
+                                  type="password"
+                                  className="form-control"
+                                  id="passwordInput"
+                                  placeholder="Enter your password"
+                                  {...register("password", {
+                                    required: {
+                                      value: true,
+                                      message: "Password is Required",
+                                    },
+                                    minLength: {
+                                      value: 6,
+                                      message: "Minimum 6 Characters",
+                                    },
+                                  })}
+                                />
+                                <label class="label">
+                                  {errors.password?.type === "required" &&
+                                    "Password is Required"}
+                                </label>
+                              </div>
+
+                              <div className="text-center">
+                                <button
+                                  type="submit"
+                                  className="action-btn w-full text-center"
+                                >
+                                  <span> Sign In</span>
+                                </button>
+                              </div>
+                            </form>
+                            <div className="mt-4 text-center">
+                              <p className="mb-0">
+                                Don't have an account ?{" "}
+                                <Link
+                                  to="/register"
+                                  className="fw-medium text-white text-decoration-underline"
+                                >
+                                  {" "}
+                                  Sign Up{" "}
+                                </Link>
+                              </p>
+                            </div>
+                            <div className="mt-4 text-center">
+                              <p className="mb-0">
+                                Forget password ?{" "}
+                                <Link
+                                  to="/reset"
+                                  className="fw-medium text-white text-decoration-underline"
+                                >
+                                  {" "}
+                                  Reset Now{" "}
+                                </Link>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          
-            <input className="btn w-full  max-w-xs mt-3" type="submit" />
-          </form>
-
-          <div className="divider">OR</div>
-
-          <button
-            className="btn btn-outline btn-primary"
-            onClick={() => signInWithGoogle()}
-          >
-            Join With Google
-          </button>
+          </section>
         </div>
       </div>
-    </div>
+      {loginError && <div className="alert alert-danger">{loginError}</div>}
+    </>
   );
 };
 

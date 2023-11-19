@@ -1,6 +1,14 @@
+import { signOut } from "firebase/auth";
 import React from "react";
+import auth from "../firebase.init";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { Link } from "react-router-dom";
 
 const DashboardSidebar = () => {
+  const [user] = useAuthState(auth);
+  const handleSignout = () => {
+    signOut(auth);
+  };
   return (
     <>
       <div className="menu">
@@ -45,14 +53,18 @@ const DashboardSidebar = () => {
               >
                 <i className="bi bi-gear dropdown-item-icon" /> Settings
               </a>
-              <a
-                href="./login.html"
-                className="dropdown-item d-flex align-items-center text-danger"
-                target="_blank"
-              >
-                <i className="bi bi-box-arrow-right dropdown-item-icon" />{" "}
-                Logout
-              </a>
+
+              {user ? (
+                <Link
+                  className="dropdown-item d-flex align-items-center text-danger"
+                  onClick={handleSignout}
+                >
+                  <i className="bi bi-box-arrow-right dropdown-item-icon" />
+                  <span>Signout</span>
+                </Link>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           <ul>
@@ -181,8 +193,19 @@ const DashboardSidebar = () => {
                 <span>Settings</span>
               </a>
             </li>
-            
-            
+            <li>
+              {user ? (
+                <Link
+                  className="dropdown-item d-flex align-items-center text-danger"
+                  onClick={handleSignout}
+                >
+                  <i className="bi bi-box-arrow-right dropdown-item-icon" />
+                  <span>Signout</span>
+                </Link>
+              ) : (
+                <></>
+              )}
+            </li>
           </ul>
         </div>
       </div>
