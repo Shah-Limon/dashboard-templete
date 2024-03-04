@@ -10,8 +10,8 @@ import Dashboard from "./Pages/Dashboard";
 
 function App() {
   return (
-    <div>
-      <NavBar></NavBar>
+    <div id="layout-wrapper">
+    
       <Routes>
         <Route path="/" element={<Home></Home>}></Route>
         <Route path="/dashboard" element={<RequireAuth><Dashboard></Dashboard></RequireAuth>}></Route>
@@ -20,7 +20,7 @@ function App() {
         <Route path="/register" element={<Register></Register>}></Route>
       </Routes>
 
-      <Footer></Footer>
+     
     </div>
   );
 }

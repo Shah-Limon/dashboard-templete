@@ -1,186 +1,218 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   useAuthState,
   useSignInWithEmailAndPassword,
+  useSignInWithGoogle,
 } from "react-firebase-hooks/auth";
-import auth from "../firebase.init";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import auth from "../firebase.init";
+import Loading from "../components/Shared/Loading";
 
 const Login = () => {
+  const [signInWithGoogle, gUser, gLoading, gError] = useSignInWithGoogle(auth);
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm();
+
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth);
+
+
+  let signInError;
+
   const navigate = useNavigate();
-
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
-  const [loginError, setLoginError] = useState(null);
-
+  const location = useLocation();
+  let from = location.state?.from?.pathname || "/";
   const [userMail] = useAuthState(auth);
+  useEffect(() => {
+    if (userMail) {
+      navigate(from, { replace: true });
+    }
+  }, [userMail, from, navigate]);
 
   const onSubmit = (data) => {
-    signInWithEmailAndPassword(data.email, data.password)
-      .then(() => {
-        navigate("/dashboard");
-      })
-      .catch((error) => {
-        setLoginError("Incorrect email or password. Please try again.");
-      });
+    signInWithEmailAndPassword(data.email, data.password);
   };
 
-  if (userMail) {
-    navigate("/dashboard");
-    return null;
+  if (loading || gLoading) {
+    return <Loading />;
   }
 
+  if (error || gError) {
+    signInError = (
+      <p className="text-danger text-center">
+        <small>{error?.message || gError?.message}</small>
+      </p>
+    );
+  }
   return (
+
     <>
-      <div
-        className="main-content payment-setting"
-        data-aos="fade-up"
-        data-aos-duration={2000}
-      >
-        <div className="page-content">
-          <section className="bg-auth">
-            <div className="container">
-              <div className="row justify-content-center">
-                <div className="col-lg-12">
-                  <div
-                    className="card auth-box mb-15"
-                    style={{ background: "#0c0f2d" }}
-                  >
-                    <div className="row g-0">
-                      <div className="col-lg-6 text-center">
-                        <div className="card-body p-4">
-                          <div className="mt-5">
-                            <img
-                              src="https://themesdesign.in/jobcy/layout/assets/images/auth/sign-in.png"
-                              alt=""
-                              className="img-fluid"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-6">
-                        <div className="auth-content card-body p-5 h-100 text-white">
-                          <div className="w-100">
-                            <div className="text-center mb-4">
-                              <h4>Welcome Back !</h4>
-                              <p className="text-white-70">
-                                Sign in to continue.
-                              </p>
-                            </div>
-                            <form
-                              onSubmit={handleSubmit(onSubmit)}
-                              className="auth-form"
-                            >
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="usernameInput"
-                                  className="form-label"
-                                >
-                                  Email
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  id="usernameInput"
-                                  placeholder="Enter your Email"
-                                  {...register("email", {
-                                    required: {
-                                      value: true,
-                                      message: "Email is Required",
-                                    },
-                                    pattern: {
-                                      value: /[A-Za-z]{3}/,
-                                      message: "Provide a Valid Email",
-                                    },
-                                  })}
-                                />
-                                <label class="label">
-                                  {errors.email?.type === "required" &&
-                                    "Email is Required"}
-                                </label>
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="passwordInput"
-                                  className="form-label"
-                                >
-                                  Password
-                                </label>
-                                <input
-                                  type="password"
-                                  className="form-control"
-                                  id="passwordInput"
-                                  placeholder="Enter your password"
-                                  {...register("password", {
-                                    required: {
-                                      value: true,
-                                      message: "Password is Required",
-                                    },
-                                    minLength: {
-                                      value: 6,
-                                      message: "Minimum 6 Characters",
-                                    },
-                                  })}
-                                />
-                                <label class="label">
-                                  {errors.password?.type === "required" &&
-                                    "Password is Required"}
-                                </label>
-                              </div>
-
-                              <div className="text-center">
-                                <button
-                                  type="submit"
-                                  className="action-btn w-full text-center"
-                                >
-                                  <span> Sign In</span>
-                                </button>
-                              </div>
-                            </form>
-                            <div className="mt-4 text-center">
-                              <p className="mb-0">
-                                Don't have an account ?{" "}
-                                <Link
-                                  to="/register"
-                                  className="fw-medium text-white text-decoration-underline"
-                                >
-                                  {" "}
-                                  Sign Up{" "}
-                                </Link>
-                              </p>
-                            </div>
-                            <div className="mt-4 text-center">
-                              <p className="mb-0">
-                                Forget password ?{" "}
-                                <Link
-                                  to="/reset"
-                                  className="fw-medium text-white text-decoration-underline"
-                                >
-                                  {" "}
-                                  Reset Now{" "}
-                                </Link>
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+      <div className="account-pages my-5 pt-5">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-8 col-lg-6 col-xl-5">
+              <div className="card">
+                <div className="card-body">
+                  <div className="text-center mt-4">
+                    <div className="mb-3">
+                      <a href="index.html" className="">
+                        <img
+                          src="assets/images/logo-dark.png"
+                          alt=""
+                          height={22}
+                          className="auth-logo logo-dark mx-auto"
+                        />
+                        <img
+                          src="assets/images/logo-light.png"
+                          alt=""
+                          height={22}
+                          className="auth-logo logo-light mx-auto"
+                        />
+                      </a>
                     </div>
                   </div>
+                  <div className="p-3">
+                    <h4 className="font-size-18 text-muted mt-2 text-center">
+                      Welcome Back !
+                    </h4>
+                    <p className="text-muted text-center mb-4">
+                      Sign in to continue to upbond.
+                    </p>
+                    <form className="form-horizontal" onSubmit={handleSubmit(onSubmit)}>
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="username">
+                          E-mail Address
+                        </label>
+                        <input
+                          type="email"
+                          className="form-control"
+                          id="username"
+                          placeholder="Enter Email"
+                          {...register("email", {
+                            required: {
+                              value: true,
+                              message: "Email is Required",
+                            },
+                            pattern: {
+                              value: /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/,
+                              message: "Provide a valid Email",
+                            },
+                          })}
+                        />
+                      </div>
+                      <label className="label">
+                        {errors.email?.type === "required" && (
+                          <span className="label-text-alt text-danger">
+                            {errors.email.message}
+                          </span>
+                        )}
+                        {errors.email?.type === "pattern" && (
+                          <span className="label-text-alt text-danger">
+                            {errors.email.message}
+                          </span>
+                        )}
+                      </label>
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="userpassword">
+                          Password
+                        </label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          id="userpassword"
+                          placeholder="Enter password"
+                          {...register("password", {
+                            required: {
+                              value: true,
+                              message: "Password is Required",
+                            },
+                            minLength: {
+                              value: 6,
+                              message: "Must be 6 characters or longer",
+                            },
+                          })}
+
+                        />
+                        <label className="label">
+                          {errors.password?.type === "required" && (
+                            <span className="label-text-alt text-danger">
+                              {errors.password.message}
+                            </span>
+                          )}
+                          {errors.password?.type === "minLength" && (
+                            <span className="label-text-alt text-danger">
+                              {errors.password.message}
+                            </span>
+                          )}
+                        </label>
+
+
+                        {signInError}
+                      </div>
+
+                      {/* end row */}
+                      <div className="row mb-4">
+                        <div className="col-12 text-center">
+                          <button
+                            className="btn btn-primary w-100 waves-effect waves-light"
+                            type="submit"
+                          >
+                            Log In
+                          </button>
+                        </div>
+                      </div>
+                      {/* end row */}
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="text-center plan-line">or Login with</div>
+                        </div>
+                      </div>
+                      {/* end row */}
+                      <div className="row mt-3">
+                        <div className="button-list btn-social-icon text-center">
+
+                          <button onClick={() => signInWithGoogle()} type="button" className="btn btn-twitter ms-1">
+                            <i className="fab fa-google" />
+                          </button>
+                        </div>
+                      </div>
+                      {/* end row */}
+                    </form>
+                    {/* end form */}
+                  </div>
                 </div>
+                {/* end cardbody */}
+              </div>
+              {/* end card */}
+              <div className="mt-5 text-center">
+                <p>
+                  Don't have an account ?
+                  <a href="auth-register.html" className="fw-bold text-primary">
+                    {" "}
+                    Signup Now{" "}
+                  </a>
+                </p>
+                <p>
+                  © Upbond. Crafted with <i className="mdi mdi-heart text-danger" />{" "}
+                  by Themesdesign
+                </p>
               </div>
             </div>
-          </section>
+            {/* end col */}
+          </div>
+          {/* end row */}
         </div>
       </div>
-      {loginError && <div className="alert alert-danger">{loginError}</div>}
+
     </>
+
+
+
   );
 };
 
