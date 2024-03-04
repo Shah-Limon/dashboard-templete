@@ -158,7 +158,7 @@ const Dashboard = () => {
                           <h5 className="font-size-13 text-truncate mb-1">
                             {user.userFullName}
                           </h5>
-                          <p className="text-muted mb-0 font-size-11 text-uppercase">
+                          <p className="text-muted mb-0 font-size-11">
                             {user.userEmail}
                           </p>
                         </div>
