@@ -5,7 +5,7 @@
 //   const [leadsLengths, setLeadsLengths] = useState({}); // State to store lead lengths
 
 //   useEffect(() => {
-//     fetch(`http://localhost:5000/users`)
+//     fetch(`https://leadvaly-server.onrender.com/users`)
 //       .then((res) => res.json())
 //       .then((info) => {
 //         setUsers(info);
@@ -15,7 +15,7 @@
 
 //   const fetchLeadsLengths = (users) => {
 //     users.forEach((user) => {
-//       fetch(`http://localhost:5000/all-leads?leadProvider=${user.userEmail}`)
+//       fetch(`https://leadvaly-server.onrender.com/all-leads?leadProvider=${user.userEmail}`)
 //         .then((res) => res.json())
 //         .then((info) => {
 //           setLeadsLengths((prevState) => ({
@@ -102,7 +102,7 @@ const Dashboard = () => {
   const [leadsLengths, setLeadsLengths] = useState({}); // State to store lead lengths
 
   useEffect(() => {
-    fetch(`http://localhost:5000/users`)
+    fetch(`https://leadvaly-server.onrender.com/users`)
       .then((res) => res.json())
       .then((info) => {
         setUsers(info);
@@ -112,7 +112,7 @@ const Dashboard = () => {
 
   const fetchLeadsLengths = (users) => {
     users.forEach((user) => {
-      fetch(`http://localhost:5000/all-leads?leadProvider=${user.userEmail}`)
+      fetch(`https://leadvaly-server.onrender.com/all-leads?leadProvider=${user.userEmail}`)
         .then((res) => res.json())
         .then((info) => {
           setLeadsLengths((prevState) => ({
